@@ -36,6 +36,10 @@
                 width: 20px;
                 height: 20px;
                 background-color: #9C27B0;
+                background-image: url(imgbola.png);
+                /* border-color: #9C27B0;
+                //border-style: solid;
+                //border-width: 1px; */ 
             }
             
             .barra{
@@ -115,18 +119,40 @@
             var tecla;
             var jogo = false; //jogo está rolando?
             
+            
             function audiosvitoria(){
-                if((Math.random()*2) > 1){
+                if((Math.random()*10) >= 7){
                     vitoria.play();
                 }else{
                     vitoria2.play();
                 }
             }
             
+            function controlacpu(){
+                if(jogo){
+                    //Se a direção da bola for contra a CPU
+                    if((bolaX == 1) && ((posbolaX+bolaW) > (campoW / 2))){
+                        if ((poscpuY > (posbolaY+bolaH))){
+                            poscpuY += velcpu * -1;
+                            vcpu.style.top=poscpuY+"px";
+                        } else if ((poscpuY + barraH) <= posbolaY){
+                            poscpuY += velcpu * 1;
+                            vcpu.style.top=poscpuY+"px";
+                        }
+                    } else if (bolaX == -1){ //bola está indo da CPU contra o jogador? Reposiciona barra cpu
+                        if (poscpuY > poscpuiniY){
+                            poscpuY += velcpu * -1;
+                            vcpu.style.top=poscpuY+"px";
+                        } else if (poscpuY < poscpuiniY){
+                            poscpuY += velcpu * 1;
+                            vcpu.style.top=poscpuY+"px";
+                        }
+                    }
+                }
+            }
             
             function controlajog(){
                 if(jogo){
-                    //alert("passou controlajog()");
                     posjogadorY += veljogador * dirjY;
                     if((posjogadorY+barraH) >= campoH || posjogadorY <= 0){ //se para baixo for maior que a altura do campo ou para cima menor que o topo do campo, ao invés de incremento (se estiver abaixando) ou subtração (se estiver subindo), recebe o oposto
                         posjogadorY += (veljogador * dirjY)*(-1); //inverte a posição
@@ -148,13 +174,13 @@
                    (posbolaY <= posjogadorY+barraH))){ //bola colidiu com jogador?
                         beep.play();
                         bolaX *= -1; //bolaX é a direção horizontal. Só recebe 1 ou -1;
-                        bolaY = (((posbolaY+(bolaH/2))-(posjogadorY + (barraH / 2)))/16);
+                        bolaY = (((posbolaY+(bolaH/2))-(posjogadorY + (barraH / 2)))/24); //quanto menor a divisão, maior a aceleração da bola
                 }
                 //colisão com CPU
                 if((posbolaX+bolaW >= poscpuX) && ((posbolaY+bolaH >= poscpuY) &&(posbolaY<= poscpuY+barraH))){ //bola colidiu com jogador?
                     beep.play();
                     bolaX *= -1; //bolaX é a direção horizontal. Só recebe 1 ou -1;
-                    bolaY = (((posbolaY+(bolaH/2))- (poscpuY + (barraH / 2)))/16); //quanto maior o valor aqui, maior o efeito de multiplicação em VelBola. Então, quando mais nas extremidades da barra, mais velocidade pega a bola. 
+                    bolaY = (((posbolaY+(bolaH/2))- (poscpuY + (barraH / 2)))/80); //quanto maior o valor aqui, maior o efeito de multiplicação em VelBola. Então, quando mais nas extremidades da barra, mais velocidade pega a bola. 
                 }
                 
                 //colisões superior e inferior
@@ -216,21 +242,29 @@
                 if(jogo){
                     controlajog();
                     controlabola();
+                    controlacpu();
                 }
                 frames = requestAnimationFrame(game); //inicia animação chamando a própria função Game repetidas vezes
             }
     
             function iniciajogo(){
                 if(!jogo){ //se jogo estiver parado
-                    velbola = velcpu = veljogador = 8;
                     cancelAnimationFrame(frames); //para animação antes de começar uma nova
+                    
+                    velbola = 8;
+                    velcpu = 16;
+                    veljogador = 8;
+                    
                     jogo = true;
                     dirjY = 0;
-                    bolaY = 0;
-                    if((Math.random()*10)<5){
+                   //bolaY = 0;
+                   var alia = Math.random()*10;
+                    if(alia <5){
                         bolaX = -1;
+                        bolaY = (alia /800);
                     }else{
                         bolaX = 1;
+                        bolaY = (alia /800);
                     }
                     
                     posbolaX = posbolainiX;
